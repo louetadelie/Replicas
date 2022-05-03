@@ -1,0 +1,38 @@
+MOLINFO MOLTYPE=protein STRUCTURE=../template.pdb
+WHOLEMOLECULES ENTITY0=1-627
+# print detailed (action-by-action) timers at the end of simulation
+#DEBUG DETAILED_TIMERS FILE=DEBUG
+
+# EEF1SB Implicit solvation
+protein-h: GROUP NDX_FILE=../index.ndx NDX_GROUP=Protein-H 
+solv: EEFSOLV ATOMS=protein-h NOPBC NL_STRIDE=20 NL_BUFFER=0.1 
+bias: BIASVALUE ARG=solv 
+
+#include file with definition of metadynamics CVs
+INCLUDE FILE=../ticA.dat
+
+
+# PBMetaD
+pb: PBMETAD ...
+   ARG=tic_0,tic_1,tic_2,tic_3,tic_4,tic_5,tic_6,tic_7,tic_8,tic_9,tic_10,tic_11
+   ADAPTIVE=DIFF
+   HEIGHT=1.2
+   BIASFACTOR=34
+   SIGMA=1000
+   SIGMA_MAX=0.1,0.1,0.1,0.2,0.1,0.1,0.2,0.1,0.2,0.2,0.1,0.2
+   SIGMA_MIN=0.001,0.001,0.001,0.001,0.001,0.001,0.001,0.001,0.001,0.001,0.001,0.001
+   PACE=500
+   GRID_MIN=-3.7,-6.2,-7.3,-7.9,-8.0,-10.3,-10.5,-11.3,-10.8,-10.9,-11.6,-12.0  
+   GRID_MAX=3.7,6.2,7.3,7.9,8.0,10.3,10.5,11.3,10.8,10.9,11.6,12.0
+   GRID_SPACING=0.1,0.2,0.2,0.3,0.2,0.2,0.3,0.2,0.3,0.4,0.2,0.3
+   GRID_WSTRIDE=10000
+   WALKERS_MPI
+   FILE=HILLS_0,HILLS_1,HILLS_2,HILLS_3,HILLS_4,HILLS_5,HILLS_6,HILLS_7,HILLS_8,HILLS_9,HILLS_10,HILLS_11
+...
+
+# output from PBMETAD and BIASVALUE
+#PRINT FILE=ENERGY ARG=bias.bias,pb.bias STRIDE=100
+
+#print out relevant info
+#PRINT ARG=tic_0,tic_1,tic_2,tic_3,tic_4,tic_5,tic_6,tic_7,tic_8,tic_9,tic_10,tic_11,pb.bias FILE=COLVAR STRIDE=500
+ENDPLUMED
